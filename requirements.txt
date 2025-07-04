@@ -1,0 +1,4 @@
+# Основные зависимости для работы с MySQL и .env
+
+mysql-connector-python==9.3.0
+python-dotenv==1.1.1
