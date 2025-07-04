@@ -13,5 +13,5 @@ Thambs.db
 
 # Файлы БД
 *.sql  # Игнорируем все файлы кроме этих двух
-!database/schema.sql # Файл структуры БД
+!database/tasks.sql # Файл структуры БД
 !database/tests_data.sql # Файл тестовых данных для БД
