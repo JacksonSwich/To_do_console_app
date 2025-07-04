@@ -8,11 +8,11 @@ from mysql.connector import *
 # загрузка переменных окружения
 env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env") # устанавливаем универсальный путь к файлу .env
 if os.path.exists(env_path): # если файл существует
-    print("Файл существует! "
-          "Выгружаем переменные окружения...")
+    print("Система: Файл .env существует! \n"
+          "Система: Выгружаем переменные окружения...")
     dotenv.load_dotenv(env_path) # выгружаем переменные окружения
 else:
-    print("Ошибка!!! Файл .env не существует!")
+    print("Система: Ошибка!!! Файл .env не существует!")
 
 
 def connect_to_database():
@@ -24,27 +24,41 @@ def connect_to_database():
         password=os.getenv("password"),
         database=os.getenv("database")
         )
-        print(f"Успешное подключение к базе данных: {os.getenv("database")}!")
+        print(f"Система: Успешное подключение к базе данных: {os.getenv("database")}!")
         return connection_to_database
     except Error:
         print(Error)
         return None
 
-
 # теперь CRUD надо описать в этом файле в отдельных функциях.
 # log 04.07.2025: подключение к бд работает, запросы выполняются
 
-connection = connect_to_database() # будет в main
+def create_task(name, data):
+    # функция создания записи в базе данных
+    connection = connect_to_database() # данная функция вызывает функцию подключения к БД
+    cursor = connection.cursor()
+    cursor.execute( # параметризованный запрос на создание новой задачи
+        """INSERT INTO tasks(name, date)
+        VALUES (%s, %s)""",
+        (name, data)
+    )
+    connection.commit() # сохраняем изменения в БД
+    print("Система: Запрос выполнен!")
+    cursor.close()
+    connection.close()
 
-#########################################################
-cursor = connection.cursor()
-cursor.execute(
-    """INSERT INTO tasks(name, date)
-    VALUES ('ТЕст по русски', '2025-07-04')"""        # тест
-)
-connection.commit()
-print("Запрос выполнен!")
-#########################################################
+def read_all_task():
+    # функция просмотра всех задач в базе данных
+    connection = connect_to_database()
+    cursor = connection.cursor()
+    cursor.execute(
+        """SELECT * FROM tasks"""
+    )
 
-cursor.close() # будет в main
-connection.close() # будет в main
+    table = cursor.fetchall()
+    for row in table:
+        print(row)
+
+    print("Система: Запрос выполнен!")
+    cursor.close()
+    connection.close()
