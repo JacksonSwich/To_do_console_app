@@ -25,7 +25,15 @@ def connect_to_database():
         database=os.getenv("database")
         )
         print(f"Система: Успешное подключение к базе данных: {os.getenv("database")}!")
-        return connection_to_database
     except Error:
         print(Error)
         return None
+
+    return connection_to_database
+
+
+def disconnect_from_database(connection):
+    # функция отключения от базы данных
+    connection.close()
+    print("Отключение от базы данных")
+    return None
