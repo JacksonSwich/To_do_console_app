@@ -23,6 +23,7 @@ def read_all_task():
     cursor.execute(
         """SELECT * FROM tasks"""
     )
+
     table = cursor.fetchall()
     for row in table:
         print(row)
@@ -31,14 +32,24 @@ def read_all_task():
     print("Система: Запрос выполнен!")
 
 
-def read_task_by_id(id_number):
-    # функция просмотра задачи по номеру
+def read_task_by(choice, key):
+    # функция просмотра задачи по номеру или ключевому слову
     cursor = connection.cursor()
-    cursor.execute(
-        f"""SELECT id, name, status, date FROM tasks
-        WHERE id = %s""",
-        [id_number]
-    )
+    if choice == 1:
+        cursor.execute(
+            """SELECT id, name, status, date FROM tasks
+            WHERE id = %s""",
+            [key]
+        )
+    elif choice == 2:
+        cursor.execute(
+            f"""SELECT id, name, status, date FROM tasks
+            WHERE name LIKE %s""",
+            [f"%{key}%"]
+        )
+    else:
+        print("Ошибка!")
+
     row = cursor.fetchall()
     for word in row:
         print(word)
@@ -47,17 +58,39 @@ def read_task_by_id(id_number):
     print("Система: Запрос выполнен!")
 
 
-def read_task_by_name(key_word):
-    # функция просмотра задачи по имени
+def update_task_by(task_id, choice, new_data):
+    # функция изменения задачи
     cursor = connection.cursor()
-    cursor.execute(
-        f"""SELECT id, name, status, date FROM tasks
-        WHERE name LIKE %s""",
-        [f"%{key_word}%"]
-    )
-    row = cursor.fetchall()
-    for word in row:
-        print(word)
+    if choice == 1: # изменение статуса
+        cursor.execute(
+        """UPDATE tasks SET status = %s WHERE id = %s""",
+            (new_data, task_id)
+        )
+    elif choice == 2: # изменение названия
+        cursor.execute(
+        """UPDATE tasks SET name = %s WHERE id = %s""",
+            (new_data, task_id)
+        )
+    elif choice == 3: # изменение даты
+        cursor.execute(
+            """UPDATE tasks SET date = %s WHERE id = %s""",
+            (new_data, task_id)
+        )
+    else:
+        print("Ошибка!")
 
+    connection.commit()
+    cursor.close()
+    print("Система: Запрос выполнен!")
+
+
+def delete_task(task_id):
+    # функция удаления записи в базе данных
+    cursor = connection.cursor()
+    cursor.execute(  # параметризованный запрос на создание новой задачи
+        """DELETE FROM tasks WHERE id = %s""",
+        [task_id]
+    )
+    connection.commit()  # сохраняем изменения в БД
     cursor.close()
     print("Система: Запрос выполнен!")
