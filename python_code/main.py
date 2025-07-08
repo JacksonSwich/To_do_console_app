@@ -1,5 +1,8 @@
+from pyexpat.errors import messages
+from telebot import *
+
 from To_do_console_app.python_code.database.database_request import * # импортируем все функции по запросам CRUD к БД
-from To_do_console_app.python_code.database.database_init import disconnect_from_database # импортируем функцию отключение от БД
+from To_do_console_app.python_code.database.database_init import disconnect_from_database, token_for_telebot  # импортируем функцию отключение от БД и токен для бота
 
 # прототип
 def main():
@@ -89,4 +92,60 @@ def main():
 
 
 # глобальная программа
-main()
+# main()
+
+token = token_for_telebot # сохраняем токен для тг бота
+bot = TeleBot(token) # создаем бота
+
+@bot.message_handlers(commands=["start", "info", "help"])
+def start_message(message):
+    bot.send_message(message.chat.id, "Здравствуйте! Это бот для записи дел на день!\n"
+                                      "Для управления задачами введите команду /working_tasks")
+
+
+@bot.message_handlers(commands=["working_tasks"])
+def main(message):
+
+    tasks_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+
+    create_task_button = types.KeyboardButton("Создать задачу")
+    all_tasks_button = types.KeyboardButton("Посмотреть все задачи")
+    find_task_button = types.KeyboardButton("Найти нужную задачу")
+    update_task_button = types.KeyboardButton("Изменить существующую задачу")
+    delete_task_button = types.KeyboardButton("Удалить задачу")
+    exit_button = types.KeyboardButton("Выход")
+
+    tasks_keyboard.add(create_task_button, all_tasks_button, find_task_button, update_task_button, delete_task_button, exit_button)
+
+    bot.send_message(message.chat.id, "Управляйте с помощью клавиатуры", reply_markup=tasks_keyboard)
+
+
+@bot.message_handlers(func = lambda message : True)
+def text_handler(message):
+    if message.text == "Создать задачу":
+        # код
+        print() # стереть
+    elif message.text == "Посмотреть все задачи":
+        # код
+        print() # стереть
+    elif message.text == "Найти нужную задачу":
+        # код
+        print() # стереть
+    elif message.text == "Изменить существующую задачу":
+        # код
+        print() # стереть
+    elif message.text == "Удалить задачу":
+        # код
+        print() # стереть
+    elif message.text == "Выход":
+        # код
+        print() # стереть
+    else:
+        bot.send_message(message.chat.id, "Я Вас не понимаю!")
+
+
+
+
+
+
+bot.polling(non_stop = True)

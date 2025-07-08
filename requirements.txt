@@ -2,3 +2,4 @@
 
 mysql-connector-python==9.3.0
 python-dotenv==1.1.1
+pyTelegramBotAPI==4.27.0

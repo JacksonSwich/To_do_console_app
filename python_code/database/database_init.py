@@ -15,6 +15,10 @@ else:
     print("Система: Ошибка!!! Файл .env не существует!")
 
 
+# токен для телеграмм бота
+token_for_telebot=os.getenv("token")
+
+
 def connect_to_database():
     # функция подключения в базе данных
     try:
