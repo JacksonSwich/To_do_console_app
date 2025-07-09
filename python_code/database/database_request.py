@@ -25,23 +25,21 @@ def read_all_task():
     )
 
     table = cursor.fetchall()
-    for row in table:
-        print(row)
-
     cursor.close()
     print("Система: Запрос выполнен!")
 
+    return table
 
 def read_task_by(choice, key):
     # функция просмотра задачи по номеру или ключевому слову
     cursor = connection.cursor()
-    if choice == 1:
+    if choice == "Номеру задачи":
         cursor.execute(
             """SELECT id, name, status, date FROM tasks
             WHERE id = %s""",
             [key]
         )
-    elif choice == 2:
+    elif choice == "Ключевому слову":
         cursor.execute(
             f"""SELECT id, name, status, date FROM tasks
             WHERE name LIKE %s""",
@@ -51,11 +49,10 @@ def read_task_by(choice, key):
         print("Ошибка!")
 
     row = cursor.fetchall()
-    for word in row:
-        print(word)
-
     cursor.close()
     print("Система: Запрос выполнен!")
+
+    return row
 
 
 def update_task_by(task_id, choice, new_data):

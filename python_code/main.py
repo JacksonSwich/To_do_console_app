@@ -1,10 +1,9 @@
-from pyexpat.errors import messages
 from telebot import *
 
 from To_do_console_app.python_code.database.database_request import * # импортируем все функции по запросам CRUD к БД
 from To_do_console_app.python_code.database.database_init import disconnect_from_database, token_for_telebot  # импортируем функцию отключение от БД и токен для бота
 
-# прототип
+"""# прототип
 def main():
     try:
         print("1. Создать задачу\n"
@@ -90,21 +89,20 @@ def main():
         print("Ошибка! Неверные данные!")
         main()
 
-
 # глобальная программа
-# main()
+# main()"""
 
 token = token_for_telebot # сохраняем токен для тг бота
 bot = TeleBot(token) # создаем бота
 
-@bot.message_handlers(commands=["start", "info", "help"])
+@bot.message_handler(commands=["start","info","help"])
 def start_message(message):
     bot.send_message(message.chat.id, "Здравствуйте! Это бот для записи дел на день!\n"
-                                      "Для управления задачами введите команду /working_tasks")
+                                      "Для управления задачами введите команду /menu")
 
 
-@bot.message_handlers(commands=["working_tasks"])
-def main(message):
+@bot.message_handler(commands=["menu"])
+def main_menu(message):
 
     tasks_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 
@@ -117,31 +115,116 @@ def main(message):
 
     tasks_keyboard.add(create_task_button, all_tasks_button, find_task_button, update_task_button, delete_task_button, exit_button)
 
-    bot.send_message(message.chat.id, "Управляйте с помощью клавиатуры", reply_markup=tasks_keyboard)
+    bot.send_message(message.chat.id, "Главное меню: ", reply_markup=tasks_keyboard)
+
+# обработчик на нажатие кнопки "Создать задачу"
+@bot.message_handler(func = lambda message : message.text == "Создать задачу")
+def start_create_handler(message):
+    bot.send_message(message.chat.id, "Название задачи: ")
+    bot.register_next_step_handler(message, name_handler) # бот ожидает текста от пользователя
+def name_handler(message):
+    task_name = message.text # сообщение пользователя записывается в переменную
+    bot.send_message(message.chat.id, "Ведите дату (формат YYYY-MM-DD): ")
+    bot.register_next_step_handler(message, lambda m : date_handler(m, task_name)) # бот ожидает след сообщение
+def date_handler(message, task_name):
+    task_date = message.text # сообщение пользователя записывается в переменную
+    create_task(task_name, task_date) # вызывается функция по из database_request
+    bot.send_message(message.chat.id, "Задача создана!")
+    main_menu(message)
 
 
-@bot.message_handlers(func = lambda message : True)
-def text_handler(message):
-    if message.text == "Создать задачу":
-        # код
-        print() # стереть
-    elif message.text == "Посмотреть все задачи":
-        # код
-        print() # стереть
-    elif message.text == "Найти нужную задачу":
-        # код
-        print() # стереть
-    elif message.text == "Изменить существующую задачу":
-        # код
-        print() # стереть
-    elif message.text == "Удалить задачу":
-        # код
-        print() # стереть
-    elif message.text == "Выход":
-        # код
-        print() # стереть
+# обработчик на нажатие кнопки "Посмотреть все задачи"
+@bot.message_handler(func = lambda message : message.text == "Посмотреть все задачи")
+def bot_read_all_tasks(message):
+    table = read_all_task()
+    if not table:
+        bot.send_message(message.chat.id, "У вас пока нет задач")
     else:
-        bot.send_message(message.chat.id, "Я Вас не понимаю!")
+        response = "Ваши задачи: \n\n"
+        for task_id, name, status, date in table:
+            if status == 0:
+                status = "Не выполнено"
+            else:
+                status = "Выполнено"
+
+            response += f"{task_id}. {name} - {status} ({date}) \n"
+
+        bot.send_message(message.chat.id, response)
+        main_menu(message)
+
+
+# обработчик на нажатие кнопки "Посмотреть все задачи"
+@bot.message_handler(func = lambda message : message.text == "Найти нужную задачу")
+def find_menu(message):
+
+    find_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+
+    find_number_button = types.KeyboardButton("Номеру задачи")
+    find_word_button = types.KeyboardButton("Ключевому слову")
+    find_exit_button = types.KeyboardButton("Выход в главное меню")
+
+    find_keyboard.add(find_number_button, find_word_button, find_exit_button)
+
+    bot.send_message(message.chat.id, "Поиск задачи по: ", reply_markup = find_keyboard)
+
+
+# обработчик на нажатие кнопки "Номеру задачи"
+@bot.message_handler(func = lambda message : message.text == "Номеру задачи")
+def start_find_by_id(message):
+    bot.send_message(message.chat.id,"Введите номер задачи: ")
+    bot.register_next_step_handler(message, find_by_id)
+def find_by_id(message):
+    key_id = int(message.text)
+    row = read_task_by("Номеру задачи", key_id)
+
+    if not row:
+        bot.send_message(message.chat.id, "Задача не найдена!")
+        find_menu(message)
+    else:
+        task = "Ваша задача: \n\n"
+        for task_id, name, status, date in row:
+            if status == 0:
+                status = "Не выполнено"
+            else:
+                status = "Выполнено"
+
+            task = f"{task_id}. {name} - {status} ({date}) \n"
+
+        bot.send_message(message.chat.id, task)
+        main_menu(message)
+
+
+# обработчик на нажатие кнопки "Ключевому слову"
+@bot.message_handler(func = lambda message : message.text == "Ключевому слову")
+def start_find_by_word(message):
+    bot.send_message(message.chat.id,"Введите название задачи или ключевое слово: ")
+    bot.register_next_step_handler(message, find_by_word)
+def find_by_word(message):
+    key_word = message.text
+    table = read_task_by("Ключевому слову", key_word)
+
+    if not table:
+        bot.send_message(message.chat.id, "Задача не найдена!")
+        find_menu(message)
+    else:
+        task = "Совпадения в Ваших задачах: \n\n"
+        for task_id, name, status, date in table:
+            if status == 0:
+                status = "Не выполнено"
+            else:
+                status = "Выполнено"
+
+            task += f"{task_id}. {name} - {status} ({date}) \n"
+
+        bot.send_message(message.chat.id, task)
+        main_menu(message)
+
+
+# обработчик на нажатие кнопки "Выход в главное меню"
+@bot.message_handler(func = lambda message : message.text == "Выход в главное меню")
+def exit_from_find(message):
+    bot.send_message(message.chat.id, "Переходим в главное меню...")
+    main_menu(message)
 
 
 
