@@ -1,5 +1,5 @@
-from To_do_console_app.python_code.database.database_request import * # импортируем все функции по запросам CRUD к БД
-from To_do_console_app.python_code.database.database_init import disconnect_from_database # импортируем функцию отключение от БД
+from python_code.database.database_request import * # импортируем все функции по запросам CRUD к БД
+from python_code.database.database_init import disconnect_from_database # импортируем функцию отключение от БД
 
 # прототип
 def main():
