@@ -1,4 +1,4 @@
-from To_do_console_app.python_code.database.database_init import connect_to_database # импортируем функцию подключение к БД
+from python_code.database.database_init import connect_to_database # импортируем функцию подключение к БД
 
 # Теперь CRUD надо описать в этом файле в отдельных функциях.
 

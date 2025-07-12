@@ -1,7 +1,7 @@
 from telebot import *
 
-from To_do_console_app.python_code.database.database_request import * # импортируем все функции по запросам CRUD к БД
-from To_do_console_app.python_code.database.database_init import disconnect_from_database, token_for_telebot  # импортируем функцию отключение от БД и токен для бота
+from python_code.database.database_request import * # импортируем все функции по запросам CRUD к БД
+from python_code.database.database_init import disconnect_from_database, token_for_telebot  # импортируем функцию отключение от БД и токен для бота
 
 """# прототип
 def main():
@@ -153,7 +153,7 @@ def bot_read_all_tasks(message):
         main_menu(message)
 
 
-# обработчик на нажатие кнопки "Посмотреть все задачи"
+# обработчик на нажатие кнопки "Найти нужную задачу"
 @bot.message_handler(func = lambda message : message.text == "Найти нужную задачу")
 def find_menu(message):
 
