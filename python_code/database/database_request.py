@@ -58,17 +58,17 @@ def read_task_by(choice, key):
 def update_task_by(task_id, choice, new_data):
     # функция изменения задачи
     cursor = connection.cursor()
-    if choice == 1: # изменение статуса
+    if choice == "Статус задачи": # изменение статуса
         cursor.execute(
         """UPDATE tasks SET status = %s WHERE id = %s""",
             (new_data, task_id)
         )
-    elif choice == 2: # изменение названия
+    elif choice == "Название": # изменение названия
         cursor.execute(
         """UPDATE tasks SET name = %s WHERE id = %s""",
             (new_data, task_id)
         )
-    elif choice == 3: # изменение даты
+    elif choice == "Дату": # изменение даты
         cursor.execute(
             """UPDATE tasks SET date = %s WHERE id = %s""",
             (new_data, task_id)

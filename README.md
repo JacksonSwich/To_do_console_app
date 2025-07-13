@@ -13,8 +13,10 @@
 	
 	1. После клонирования репозитория на свой локальный компьютер
 	необходимо в корне проекта создать файл .env и добавить в него 
-	данные локального phpmyadmin:
-	
+	данные локального phpmyadmin и токена от тг бота:
+    	
+    token=your_token
+
 	host=your_host
 	user=your_user_name
 	password=your_password

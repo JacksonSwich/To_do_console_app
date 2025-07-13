@@ -1,3 +1,5 @@
+from math import lgamma
+
 from telebot import *
 
 from python_code.database.database_request import * # импортируем все функции по запросам CRUD к БД
@@ -220,11 +222,119 @@ def find_by_word(message):
         main_menu(message)
 
 
+# обработчик на нажатие кнопки "Изменить существующую задачу"
+@bot.message_handler(func = lambda message : message.text == "Изменить существующую задачу")
+def update_menu(message):
+
+    update_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+
+    update_status_button = types.KeyboardButton("Статус задачи")
+    update_name_button = types.KeyboardButton("Название")
+    update_date_button = types.KeyboardButton("Дату")
+    update_exit_button = types.KeyboardButton("Выход в главное меню")
+
+    update_keyboard.add(update_status_button, update_name_button, update_date_button, update_exit_button)
+
+    bot.send_message(message.chat.id, "В задаче изменить:", reply_markup = update_keyboard)
+
+
+# обработчик на нажатие кнопки "Статус задачи"
+@bot.message_handler(func = lambda message : message.text == "Статус задачи")
+def status_update_menu(message):
+
+    status_update_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+
+    status_complete_button = types.KeyboardButton("Выполнено")
+    status_not_complete_button = types.KeyboardButton("Не выполнено")
+    status_exit_button = types.KeyboardButton("Вернуться в меню изменения")
+
+    status_update_keyboard.add(status_complete_button, status_not_complete_button, status_exit_button)
+
+    bot.send_message(message.chat.id, "Измените статус задачи:", reply_markup=status_update_keyboard)
+
+
+# обработчик на нажатие кнопки "Выполнено"
+@bot.message_handler(func = lambda message : message.text == "Выполнено")
+def start_update_status_complete(message):
+    bot.send_message(message.chat.id, "Введите id задачи:")
+    bot.register_next_step_handler(message, update_status_complete)
+def update_status_complete(message):
+    task_id = message.text
+    update_task_by(task_id, "Статус задачи", 1)
+    bot.send_message(message.chat.id, "Статус задачи обновлен!")
+    main_menu(message)
+
+
+# обработчик на нажатие кнопки "Не выполнено"
+@bot.message_handler(func = lambda message : message.text == "Не выполнено")
+def start_update_status_not_complete(message):
+    bot.send_message(message.chat.id, "Введите id задачи:")
+    bot.register_next_step_handler(message, update_status_not_complete)
+def update_status_not_complete(message):
+    task_id = message.text
+    update_task_by(task_id, "Статус задачи", 0)
+    bot.send_message(message.chat.id, "Статус задачи обновлен!")
+    main_menu(message)
+
+
+# обработчик на нажатие кнопки "Вернуться в меню изменения"
+@bot.message_handler(func = lambda message : message.text == "Вернуться в меню изменения")
+def exit_from_find(message):
+    bot.send_message(message.chat.id, "Переходим в меню...")
+    update_menu(message)
+
+
+# обработчик на нажатие кнопки "Название"
+@bot.message_handler(func = lambda message : message.text == "Название")
+def start_update_name(message):
+    bot.send_message(message.chat.id, "Введите id задачи:")
+    bot.register_next_step_handler(message, update_name)
+def update_name(message):
+    task_id = message.text
+    bot.send_message(message.chat.id, "Введите новое название задачи:")
+    bot.register_next_step_handler(message, lambda m : get_name(m, task_id))
+def get_name(message, task_id):
+    task_name = message.text
+    update_task_by(task_id, "Название", task_name)
+    bot.send_message(message.chat.id, "Название задачи обновлено!")
+    main_menu(message)
+
+
+# обработчик на нажатие кнопки "Дату"
+@bot.message_handler(func = lambda message : message.text == "Дату")
+def start_update_date(message):
+    bot.send_message(message.chat.id, "Введите id задачи:")
+    bot.register_next_step_handler(message, update_date)
+def update_date(message):
+    task_id = message.text
+    bot.send_message(message.chat.id, "Введите новую дату для задачи (YYYY-MM-DD):")
+    bot.register_next_step_handler(message, lambda m : get_name(m, task_id))
+def get_date(message, task_id):
+    task_date = message.text
+    update_task_by(task_id, "Дату", task_date)
+    bot.send_message(message.chat.id, "Дата задачи обновлена!")
+    main_menu(message)
+
+
 # обработчик на нажатие кнопки "Выход в главное меню"
 @bot.message_handler(func = lambda message : message.text == "Выход в главное меню")
 def exit_from_find(message):
     bot.send_message(message.chat.id, "Переходим в главное меню...")
     main_menu(message)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
